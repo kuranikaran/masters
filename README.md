@@ -1,4 +1,4 @@
-# masters
+# MS in Cybersecurity [LAB'S]
 
 CS-601C Computational Statistics <br>
 CYB-611 Introduction To Cybersecurity <br>
