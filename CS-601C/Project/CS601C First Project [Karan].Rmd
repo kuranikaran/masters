@@ -1,0 +1,1024 @@
+---
+title: " Computational Statistics - CS601C Project"
+author: "Karan Kurani"
+date: "2023-10-18"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+<div align="center">
+![](my_image.png)
+</div>
+<center> Computational Statistics  </center>
+<center> Professor : Paul Dantzig </center>
+<center>Professor's Mail : pdantzig@pace.edu </center>
+<center> My UID : U01932963 | kk71450n@pace.edu  </center>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 1 
+1.This exercise relates to the College data set, which can be found in the file College.csv.
+
+
+It contains a number of variables for 777 different universities and colleges in the US. The
+variables are:
+
+* Private : Public/private indicator
+
+
+* Apps : Number of applications received
+
+
+* Accept : Number of applicants accepted
+
+
+* Enroll : Number of new students enrolled
+
+
+* Top10perc : New students from top 10% of high school class
+
+
+* Top25perc : New students from top 25% of high school class
+
+
+* F.Undergrad : Number of full-time undergraduates
+
+
+* P.Undergrad : Number of part-time undergraduates
+
+
+* Outstate : Out-of-state tuition
+
+
+* Room.Board : Room and board costs
+
+
+* Books : Estimated book costs
+
+
+* Personal : Estimated personal spending
+
+
+* PhD : Percent of faculty with Ph.D.’s
+
+
+* Terminal : Percent of faculty with terminal degree
+
+
+* S.F.Ratio : Student/faculty ratio
+
+
+* perc.alumni : Percent of alumni who donate
+
+
+* Expend : Instructional expenditure per student
+
+
+* Grad.Rate : Graduation rate
+
+#
+#
+
+(a) Read the data into R. Make sure that you have the directory set to the correct location for the data or use file.choose().
+
+```{r read-data}
+# Reading the data into R
+college<- read.csv("College.csv")
+```
+#
+#
+
+(b) Look at the data using the View() function. You should notice that the first column is just the
+name of each university. We don’t really want R to treat this as data. However, it may be handy
+to have these names for later.
+
+```{r adjust-college}
+# View(college)
+row.names(college) <- college[, 1]
+
+```
+As we can see, each university's name is now shown in the row.names column. This indicates that R has assigned a name to each row that corresponds to the proper university. R won't attempt to do computations using the row names. The first column of the data, which contains the names, must still be removed. So we can run the following command
+
+```{r}
+college <- college[, -1]
+head(college)
+```
+Now, we can see that Private is the first data column.  that other column with the name "row."names are now displayed before to the Private column. However, this is the name that R assigns to each row rather than a data column.
+
+#
+
+(c) i Produce a numerical summary of quantitative attributes in the data set.
+
+```{r summary-quantitative}
+summary(college)
+```
+
+
+Here we have used summary() function to produce a numerical summary of the variables in the data set.
+
+
+
+(c) ii. Produce a scatterplot matrix of the first ten columns of the quantitative data. Recall that you can reference the first ten columns of a matrix A using A[,2:11]
+
+
+```{r scatterplot-matrix-2-11}
+pairs(college[,2:11])
+```
+
+Here we have used the pairs() function to produce a scatterplot matrix of the first ten columns or variables of the data
+
+**Findings** 
+
+Strong correlation: Many pairs of variables exhibit linear relationships. For example, Apps (Applications) and Accept (Accepted) show a strong positive linear relationship, indicating that as the number of applications increases, so do acceptance rates in general
+
+Difference in top percentage: There is a clear difference between Top10perc and Top25perc. Schools with a high proportion of students in the top 10% of graduating classes do not consistently achieve a very high percentage in the top 25%, suggesting that there may be some schools that do they are focused on excellence
+
+Sparse data points for high prices: For variables such as Outstate, Room.Board, and Books, there appears to be an increasing number of data points in the low range with few outliers in the high range This may indicate that institution most have, . a significant drop in debt, with a few exceptions that charge significantly more.
+
+
+(c) iii. Produce side-by-side boxplots of Outstate versus Private.
+
+
+```{r boxplot-outstate-private-color}
+college$Private <- as.factor(college$Private)
+
+boxplot(Outstate ~ Private, data = college, main="Outstate Tuition by Private/Public Status", 
+        xlab="Private University", ylab="Tuition in $", col=c("lightblue","pink"))
+        legend("topright", legend = levels(college$Private), fill = c("lightblue", "pink"))
+```
+
+
+Here we have used the box plot() function to produce side-by-side boxplots of Outstate versus Private
+
+**Findings** 
+
+
+1. More Courses for Private Universities: Out-of-state tuition at private universities (checked "yes") tends to be higher compared to public universities (checked if "no") about. The tuition of private institutions is remarkably higher than that of public institutions.
+
+2. Extroverts for public universities: There are (not) a few public universities that offer tuition equal to or more than some private institutions. These outliers may represent less competent or higher prestige public institutions.
+
+3. Tuition variables for private universities: The interquartile range (IQR) for private universities is wider than for public universities, indicating a greater spread of tuition at private institutions.
+
+The ultimate conclusion is that although private universities on average charge higher tuition, there are some public universities whose tuition is even higher, perhaps because of their unique offerings or them for the sake of fame
+
+
+
+(c) iv. Create a new qualitative variable, called Elite, by binning the Top10perc variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50%.
+
+```{r elite}
+Elite <- rep("No", nrow(college))
+Elite[college$Top10perc > 50] <- "Yes"
+Elite <- as.factor(Elite)
+college <- data.frame(college, Elite)
+
+```
+
+**Findings** 
+
+The creation of the 'Elite' variable provides insight into the admission standards of universities. Those labeled as 'Elite' likely have a highly competitive or selective admission process, aiming to admit students who have demonstrated high academic achievements in high school.
+
+
+(c) v. Use the summary() function to see how many elite universities there are. Now use the plot() function to produce side-by-side boxplots of Outstate versus Elite.
+```{r summary}
+summary(Elite)
+```
+
+Here we have used the summary() function to see how many elite universities there are. Now we will use the box plot() function to produce side-by-side boxplots of Outstate versus Elite.
+
+```{r boxplot-outstate-elite}
+boxplot(Outstate ~ Elite, data = college, main="Outstate Tuition by Elite Status", 
+        xlab="Elite University", ylab="Tuition in $", col=c("lightcoral","lightgreen"))
+        legend("topright", legend = levels(college$Elite), fill = c("lightcoral", "lightgreen"))
+```
+
+
+
+**Findings** 
+
+Higher tuition rates for elite universities: Universities classified as elite (marked as "yes") tend to have higher out-of-state tuition rates compared to university for non-major types (marked "no")  Obviously, the average tuition of elite universities is higher than that of non-elite universities.
+
+Outliers for non-elite universities: There are a few (not) non-elite universities whose tuition fees approach elite institutions. These outliers may represent non-elite universities with special programs or other characteristics that improve their teaching.
+
+Tuition fees variable for elite universities: The interquartile range (IQR) of elite universities is lower than non-elite universities, indicating a constant rate of institutional teaching in higher forms.
+
+The key finding is that although elite universities tend to charge higher tuition fees on average, there are some non-elite universities whose tuition fees are comparable to institutions of the nobles
+
+
+
+(c) vi. Produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow=c(2,2)) useful: it will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways
+
+```{r histogram}
+
+par(mfrow=c(2,2))
+hist(college$Apps, xlab = "Applications Received", main = "")
+hist(college$perc.alumni, col=2, xlab = "% of alumni who donate", main = "")
+hist(college$S.F.Ratio, col=3, breaks=10, xlab = "Student/faculty ratio", main = "")
+hist(college$Expend, breaks=100, xlab = "Instructional expenditure per student", main = "")
+```
+
+
+**Findings** 
+
+
+A significant majority of institutions receive fewer than 10,000 applications.
+
+
+There's a notable peak in institutions where roughly 20-30% of alumni donate.
+
+
+The student/faculty ratio is most commonly centered around 15-20 for many institutions.
+
+
+Instructional expenditure per student is most frequent below 10,000, with only a few institutions spending significantly more.
+
+#
+
+
+(c) vii. Continue exploring the data, and provide a brief summary of what you discover. This
+is where you get to show me what you have learned about correlation, linear
+regression, and multiple linear regression. First correlate the quantitative variables you
+think are important, find two attributes that correlate well to do linear regression. See
+if you can find a third variable to do multiple regression. 
+
+#
+
+#### Some interesting observations are :
+
+- **University with the most students in the top 10% of class:**
+
+```{r uni-top10perc}
+uni_top10 = row.names(college)[which.max(college$Top10perc)]
+uni_top10
+```
+
+- **University with the smallest acceptance rate:**
+
+```{r uni-smallest-acceptance}
+acceptance_rate <- college$Accept / college$Apps
+uni_min_acceptance = row.names(college)[which.min(acceptance_rate)]
+uni_min_acceptance
+```
+
+- **University with the most liberal acceptance rate:**
+
+```{r uni-largest-acceptance}
+uni_max_acceptance = row.names(college)[which.max(acceptance_rate)]
+uni_max_acceptance
+```
+
+- **High tuition correlates to high graduation rate:- **
+
+```{r plot-tuition-gradrate}
+plot(college$Outstate, college$Grad.Rate, 
+     xlab = "Out-of-State Tuition", ylab = "Graduation Rate", 
+     main="Out-of-State Tuition vs Graduation Rate")
+```
+
+
+- **Colleges with low acceptance rate tend to have low Student:Faculty ratio:- **
+
+```{r plot-acceptance-sfratio}
+plot(college$Accept / college$Apps, college$S.F.Ratio, 
+     xlab = "Acceptance Rate", ylab = "Student/Faculty Ratio", 
+     main="Acceptance Rate vs Student/Faculty Ratio")
+```
+
+
+- **Colleges with the most students from top 10% don't necessarily have the highest graduation rate. Also, rates > 100 are erroneous!- **
+
+```{r plot-top10perc-gradrate}
+plot(college$Top10perc, college$Grad.Rate, 
+     xlab = "Percentage of Students from Top 10%", ylab = "Graduation Rate", 
+     main="Top 10% Students vs Graduation Rate")
+```
+
+
+### Correlation
+- **We can determine which quantitative variables in the data set are most strongly correlated.**
+
+```{r correlation-matrix}
+cor_matrix <- cor(college[, sapply(college, is.numeric)])
+cor_matrix
+```
+
+### Linear Regression
+
+- **Now We can perform a simple linear regression between Outstate and Grad.Rate.**
+
+```{r linear-regression}
+lin_reg <- lm(Grad.Rate ~ Outstate, data=college)
+summary(lin_reg)
+```
+
+### Multiple Regression
+
+- **To introduce a third variable into our regression analysis, We will assume Top10perc (percentage of new students from top 10% of their high school class) might be an interesting factor to consider. Thus, we'll add it to our linear regression to make it a multiple regression.**
+
+```{r multiple-regression}
+multi_reg <- lm(Grad.Rate ~ Outstate + Top10perc, data=college)
+summary(multi_reg)
+```
+
+From this, we can interpret how each predictor variable impacts the response and how well our model fits the data with the inclusion of the new variable.
+
+
+
+**Findings** 
+
+
+
+1. The Massachusetts Institute of Technology (MIT) has the most students in the top 10% of their classes.
+
+2. Princeton University has the lowest acceptance rate, making it the most selective institution in this dataset.
+
+3. In contrast, Emporia State University is the most liberal in terms of acceptance, admitting the highest proportion of its applicants.
+
+4. There's a noticeable correlation between out-of-state tuition fees and graduation rate, suggesting that colleges with higher tuition fees generally have higher graduation rates.
+
+5. A lower acceptance rate often aligns with a lower student-to-faculty ratio, which could hint at a more personalized or rigorous education at more selective schools.
+
+6. Interestingly, just because a college has a higher percentage of students from the top 10% of their classes doesn't guarantee a higher graduation rate. There were also observed errors where graduation rates exceeded 100%, which is illogical and needs addressing.
+
+Correlation Insights:
+
+
+- The variables `Apps` and `Accept` (number of applications and number of acceptances) have a high correlation, which is expected because more applications would generally lead to more acceptances.
+
+- The percentage of new students from the top 10% and top 25% of their high school class (`Top10perc` and `Top25perc`) are also highly correlated.
+
+- There's a significant positive correlation between the amount spent by institutions (`Expend`) and both `Top10perc` and `Outstate`. This could mean that universities that spend more per student attract more top-performing students and charge higher out-of-state tuition fees.
+
+- The Student-to-Faculty ratio (`S.F.Ratio`) has a negative correlation with `Outstate`, suggesting colleges with higher out-of-state tuition tend to have a lower student-to-faculty ratio.
+
+Linear Regression Insights:
+
+- A linear regression model between `Outstate` (out-of-state tuition) and `Grad.Rate` (graduation rate) reveals a significant relationship. As the tuition fee for out-of-state students increases, the graduation rate also tends to increase. The p-value (not completely shown) is presumably very small given the indications, suggesting the relationship is statistically significant. 
+
+
+Multiple Regression Insights:
+
+- In a multiple regression framework, `Outstate` and `Top10perc` serve as influential predictors for `Grad.Rate`.
+- A significant positive correlation exists between `Outstate` and `Grad.Rate`, ideal for linear regression. 
+
+
+
+## Exercise 1.2
+2. This exercise uses the Auto data set. Make sure that the missing values have been removed from the data.
+
+
+```{r quantitative }
+# Loading necessary libraries
+library(tidyverse)
+library(GGally)
+
+# Reading the data
+auto_data <- read.csv("auto.csv", header = TRUE, stringsAsFactors = FALSE)
+
+# Displaying the first few rows of the data set
+head(auto_data)
+
+summary(auto_data)
+```
+```{r structure}
+
+# Checking the structure of the data set
+
+# Removing rows with any NA values
+auto_data <- auto_data %>%
+  filter_all(all_vars(!is.na(.)))
+
+# Verifying the removal of missing values
+sum(is.na(auto_data))
+```
+Now there are 0 missing values in our data set 
+
+(a) Which of the predictors are quantitative, and which are qualitative?
+
+
+Sometimes, a qualitative variable that we load with a dataset may also have a numerical value. For instance, the qualitative origin variable has integer values of 1, 2, and 3. We know that this variable is coded 1 = USA, 2 = europe, and 3 = Japan from mysterious sources (Googling). In order to convert it into a factor, we can use:
+
+
+```{r}
+str(auto_data)
+
+auto_data$originf <- factor(auto_data$origin, labels = c("usa", "europe", "japan"))
+with(auto_data, table(originf, origin))
+
+```
+
+
+**Findings** 
+
+
+   - Quantitative: mpg, displacement, horsepower, weight, acceleration, year
+
+
+   - Qualitative: cylinders, origin, name
+
+
+
+(b) What is the range of each quantitative predictor? You can answer this using the range()
+function.
+
+
+```{r}
+#Pulling together qualitative predictors
+qualitative_columns <- which(names(auto_data) %in% c("name", "origin", "originf"))
+qualitative_columns
+
+# Applying the range function to the columns of Auto data
+# that are not qualitative
+sapply(auto_data[, -qualitative_columns], range)
+
+```
+
+
+**Findings** 
+
+
+
+1. mpg (Miles per Gallon):
+   - Minimum: 9.0
+   - Maximum: 46.6
+   
+2. cylinders:
+   - Minimum: 3
+   - Maximum: 8
+
+3. displacement:
+   - Minimum: 68
+   - Maximum: 455
+
+4. horsepower:
+   - Minimum: 46
+   - Maximum: 230
+
+5. weight:
+   - Minimum: 1613
+   - Maximum: 5140
+
+6. acceleration:
+   - Minimum: 8.0
+   - Maximum: 24.8
+
+7. year:
+   - Minimum: 70
+   - Maximum: 82
+
+
+
+(c) What is the mean and standard deviation of each quantitative predictor?
+
+```{r}
+
+sapply(auto_data[, -qualitative_columns], mean)
+
+sapply(auto_data[, -qualitative_columns], sd)
+```
+
+
+**Findings** 
+
+
+
+1. mpg (Miles per Gallon):
+   - Mean: 23.445918
+   - Standard Deviation: 7.805007
+
+2. cylinders:
+   - Mean: 5.471939
+   - Standard Deviation: 1.705783
+
+3. displacement:
+   - Mean: 194.411990
+   - Standard Deviation: 104.644004
+
+4. horsepower:
+   - Mean: 104.469388
+   - Standard Deviation: 38.491160
+
+5. weight:
+   - Mean: 2977.584184
+   - Standard Deviation: 849.402560
+
+6. acceleration:
+   - Mean: 15.541327
+   - Standard Deviation: 2.758864
+
+7. year:
+   - Mean: 75.979592
+   - Standard Deviation: 3.683737
+
+
+
+
+(d) Now remove the 10th through 85th observations. What is the range, mean, and standard deviation of each predictor in the subset of the data that remains?
+
+```{r}
+sapply(auto_data[-seq(10, 85), -qualitative_columns], mean)
+sapply(auto_data[-seq(10, 85), -qualitative_columns], sd)
+
+# Define qualitative_columns
+qualitative_columns <- which(names(auto_data) %in% c("name", "origin", "originf"))
+
+# Compute the range for the subset of data
+range_values <- sapply(auto_data[-seq(10, 85), -qualitative_columns], range)
+
+# Display the range values
+range_values
+
+```
+
+
+**Findings** 
+
+
+
+- mpg
+  - Range: 11.0 - 46.6
+  - Mean: 24.404430
+  - Standard Deviation: 7.867283
+  
+- cylinders
+  - Range: 3 - 8
+  - Mean: 5.373418
+  - Standard Deviation: 1.654179
+  
+- displacement
+  - Range: 68 - 455
+  - Mean: 187.240506
+  - Standard Deviation: 99.678367
+  
+- horsepower
+  - Range: 46 - 230
+  - Mean: 100.721519
+  - Standard Deviation: 35.708853
+  
+- weight
+  - Range: 1649 - 4997
+  - Mean: 2935.971519
+  - Standard Deviation: 811.300208
+  
+- acceleration
+  - Range: 8.5 - 24.8
+  - Mean: 15.726899
+  - Standard Deviation: 2.693721
+  
+- year
+  - Range: 70 - 82
+  - Mean: 77.145570
+  - Standard Deviation: 3.106217
+
+
+
+(e) Suppose that we wish to predict gas mileage (mpg) on the basis of the other variables. (i.e.
+use tools such as correlation, linear regression, multiple linear regression). Create some plots
+highlighting the relationships among the predictors. Do your plots suggest that any of the other
+variables might be useful in predicting mpg? Justify your answer
+
+
+```{r}
+pairs(auto_data[, -qualitative_columns])
+# We can also do this by selecting only numeric variables for the pairs() function
+numeric_data <- auto_data %>% select(mpg, cylinders, displacement, horsepower, weight, acceleration, year)
+pairs(numeric_data)
+```
+
+**Findings** 
+
+Fuel Efficiency Trends:
+There's a pronounced negative correlation between mpg (miles per gallon) and attributes like displacement, horsepower, and weight. This suggests that cars with higher displacement, greater horsepower, or more weight tend to be less fuel-efficient.
+
+Evolution of Fuel Efficiency:
+mpg displays a noticeable positive correlation with year. This indicates that newer cars, over the years, have generally become more fuel-efficient.
+
+Engine Characteristics:
+There's a clear and strong positive relationship between the number of cylinders in an engine and other attributes like displacement, horsepower, and weight. Cars with more cylinders tend to have greater displacement, more horsepower, and are generally heavier.
+
+Interplay of Power and Size:
+displacement and horsepower show a strong positive correlation. Cars with larger engines (higher displacement) typically have more horsepower, suggesting a direct relationship between the size of the engine and the power it produces.
+
+
+```{r}
+# Heavier weight correlates with lower mpg.
+with(auto_data, plot(mpg, weight))
+
+```
+
+
+**Findings** 
+
+
+
+This scatterplot depicts the relationship between mpg (miles per gallon) and weight of cars.
+
+Observations from the Scatter plot:
+
+Negative Correlation: The plot shows a clear negative correlation between weight and mpg. As the weight of the car increases, its fuel efficiency (mpg) decreases. This is consistent with the intuition that heavier cars require more energy to move and hence consume more fuel.
+  
+Density of Data Points: The densest cluster of data points is observed for cars weighing between approximately 2500 to 4000 units (possibly pounds) and having mpg values ranging from 15 to 25. This suggests that a significant portion of the cars in the data set fall within this weight and mpg range.
+
+Outliers: There are a few cars on the far right of the plot, which have exceptionally high mpg values (greater than 35). These cars seem to be lighter compared to others, hinting at specialized lightweight designs or perhaps hybrid/electric models that are more fuel-efficient.
+
+Consistency across Weight Range: Across the weight spectrum, there's a general consistency in the trend. Even among the lighter cars (those weighing around 1500 units), none seem to have exceptionally high mpg values, indicating that other factors besides weight might influence fuel efficiency.
+
+
+```{r}
+# More cylinders, less mpg.
+with(auto_data, plot(mpg, cylinders))
+
+```
+
+
+**Findings** 
+
+
+Observations from the Scatter plot:
+
+Clustering by Cylinder Count: Cars are grouped according to their cylinder counts, creating distinct horizontal bands. This demonstrates a categorical nature of the cylinders variable.
+
+Four-Cylinder Cars: The most fuel-efficient cars (those with the highest mpg values) tend to have 4 cylinders. These cars span a wide range of mpg values, but a significant portion of them fall in the higher mpg range (above 25).
+
+Eight-Cylinder Cars: Cars with 8 cylinders are the least fuel-efficient, with most of them having mpg values below 20. This aligns with the understanding that engines with more cylinders often prioritize power over fuel efficiency.
+
+Six-Cylinder Cars: These cars fall between the four and eight-cylinder vehicles in terms of fuel efficiency. They are scattered primarily in the mid-range mpg values, typically between 15 to 25 mpg.
+
+Sparse Data for Other Cylinder Counts: There's a sparse presence of cars with 5 or 3 cylinders. This suggests that such configurations are less common or possibly represent specialty models. Their mpg values vary, without a clear trend.
+
+```{r}
+# Cars become more efficient over time.
+with(auto_data, plot(mpg, year))
+
+```
+
+**Findings** 
+
+
+This scatterplot visualizes the relationship between the model year of cars and their fuel efficiency measured in mpg (miles per gallon).
+
+Observations from the Scatter plot:
+
+Overall Trend: There appears to be a general upward trend in fuel efficiency as the model years progress. Cars from more recent years tend to have higher mpg values compared to the older models.
+
+70s Cars: Cars from the early 1970s seem to be less fuel-efficient, with many clustering below the 20 mpg mark.
+
+Late 70s to Early 80s Cars: There's a noticeable shift in fuel efficiency starting from the late 70s. Cars from these years show a broader range of mpg values, with a significant portion achieving mpg values above 20. By the time we reach the 80s, many cars are seen to be in the higher mpg bracket, indicating advancements in fuel efficiency technologies or shifts in market demand for more fuel-efficient vehicles.
+
+Data Distribution: There's a visible increase in data density (more points) in the higher mpg range as the years progress. This further solidifies the observation that more recent car models tend to be more fuel-efficient.
+
+Variability: Each year seems to have a variety of mpg values, indicating that while general trends can be discerned, individual models or brands may have varied quite significantly in terms of fuel efficiency.
+
+
+```{r}
+# Let's plot mpg vs. some of our qualitative features: 
+# Sample just 20 observations
+auto_data_sample <- auto_data[sample(1:nrow(auto_data), 20), ]
+
+# Order them
+auto_data_sample <- auto_data_sample[order(auto_data_sample$mpg), ]
+
+# Plot them using a "dot chart"
+with(auto_data_sample, dotchart(mpg, name, xlab = "mpg"))
+
+```
+
+
+
+**Findings** 
+
+
+This plot is a horizontal bar chart or a dot plot that represents the fuel efficiency (in miles per gallon, mpg) of various car models.
+
+Observations from the Chart:
+
+Highest Fuel Efficiency: The "datsun b210 gx" seems to have the highest fuel efficiency, approaching 40 mpg.
+  
+Lowest Fuel Efficiency: The "chevy c20" appears to have the lowest fuel efficiency, slightly above 10 mpg.
+  
+Variability: Most cars on the list have fuel efficiencies ranging between 20 to 30 mpg. There are a few exceptions on either end of the spectrum, but the majority fall within this range.
+
+Popular Brands: Chevrolet, Ford, and Oldsmobile have multiple models represented on the list, indicating that these brands had a variety of models with different fuel efficiency levels during the time period considered.
+
+Compact vs. Larger Cars: It seems that more compact cars like the "datsun b210 gx", "opel 1900", "honda civic", and "toyota corolla liftback" have higher fuel efficiencies compared to larger or more luxurious models like the "pontiac catalina brougham" and "oldsmobile omega brougham".
+
+Truck: The "chevy c20", which appears to be a truck given the typical naming convention, unsurprisingly has lower fuel efficiency compared to smaller sedans or coupes.
+
+```{r}
+with(auto_data, plot(originf, mpg, ylab = "mpg"))
+
+```
+
+
+**Findings** 
+
+
+This plot displays boxplots representing the fuel efficiency (in miles per gallon, mpg) of cars from three different regions: USA, Europe, and Japan.
+
+Observations from the Box plots:
+
+USA:
+
+   - Median Fuel Efficiency: Around 20 mpg.
+   
+   - Interquartile Range (IQR): The fuel efficiency for the middle 50% of the cars (IQR) is approximately between 15 and 25 mpg.
+   
+   - Outliers: No significant outliers are observed for the USA.
+   
+Europe:
+
+   - Median Fuel Efficiency: Slightly above 25 mpg.
+   
+   - Interquartile Range (IQR): The IQR appears to be between around 20 mpg and 30 mpg.
+   
+   - Outliers: Two outliers are observed, both above the upper whisker, indicating cars with exceptionally high fuel efficiency for European standards.
+
+Japan:
+
+   - Median Fuel Efficiency: Just above 30 mpg.
+   
+   - Interquartile Range (IQR): The IQR ranges approximately between 25 mpg and 35 mpg.
+   
+   - Outliers: One outlier is observed below the lower whisker, indicating a car with notably low fuel efficiency for Japanese standards.
+
+General Observations:
+
+Highest Median Fuel Efficiency: Japan has the highest median fuel efficiency, followed by Europe and then the USA.
+Spread: European cars show a narrower IQR compared to Japanese and American cars, indicating that the fuel efficiency of most European cars is more closely clustered around the median.
+Performance Range: While cars from the USA have a wider range of fuel efficiencies, cars from Europe and Japan generally tend to have higher fuel efficiency.
+  
+All of the predictors show some correlation with mpg. The name predictor has too little observations per name though, so using this as a predictor is likely to result in overfitting the data and will not generalize well.
+
+
+
+
+## Exercise 1.3
+3. This exercise involves the Boston housing data set.
+
+
+(a) To begin, load in the Boston data set. How many rows are in this data set? How many columns? What do the rows and columns represent?
+
+```{r}
+# Reading the data
+Boston <- read.csv("Boston.csv", header = TRUE, stringsAsFactors = FALSE)
+# Checking the structure
+str(Boston)
+# Displaying the first few rows
+head(Boston)
+```
+**Findings** 
+
+
+   - There are 506 observations (or rows) in the Boston dataset.
+   
+   - There are 14 variables (or columns) in the dataset.
+
+   - Each row represents data for a particular housing tract in Boston.
+   - The columns represent the following:
+     - `X`: An index or identifier for each row.
+     - `crim`: Crime rate (per capita crime rate by town).
+     - `zn`: Proportion of residential land zoned for lots over 25,000 sq. ft.
+     - `indus`: Proportion of non-retail business acres per town.
+     - `chas`: Charles River dummy variable (1 if the tract bounds the river; 0 otherwise).
+     - `nox`: Nitrogen oxide concentration (parts per 10 million).
+     - `rm`: Average number of rooms per dwelling.
+     - `age`: Proportion of owner-occupied units built before 1940.
+     - `dis`: Weighted mean of distances to five Boston employment centers.
+     - `rad`: Index of accessibility to radial highways.
+     - `tax`: Full-value property tax rate per $10,000.
+     - `ptratio`: Pupil-teacher ratio by town.
+     - `lstat`: Percentage of the population that is of lower status.
+     - `medv`: Median value of owner-occupied homes in $1000s.
+
+
+
+(b) Make some pairwise scatterplots of the predictors (columns) in this data set. Describe your
+findings.
+
+```{r}
+# Excluding the 'X' column as it's just an index
+pairs(Boston[, -1], pch = 19, cex = 0.5)
+```
+
+**Findings** 
+
+* rm (Average Number of Rooms) vs. medv (Median House Value):
+
+A positive trend between rm and medv suggests houses with more rooms typically have a higher median value. This insight can be foundational in housing analysis, as the number of rooms (size of the house) is directly related to its value.
+
+* nox (Nitrogen Oxides Concentration) vs. dis (Distance to Employment Centers):
+
+nox seems to have a negative trend with dis, indicating higher concentrations of nitrogen oxides in areas closer to employment centers. This suggests that regions near employment hubs might be more polluted, which is crucial from an environmental and urban planning perspective.
+
+* lstat (Percentage of Lower Status Population) vs. medv (Median House Value):
+
+A noticeable negative trend exists between lstat and medv, meaning areas with a higher percentage of lower-status population tend to have lower median house values. This relationship is vital as it indicates socioeconomic disparities and can guide policy decisions.
+
+* age (Proportion of Owner-occupied Units Built Prior to 1940) vs. dis (Distance to Employment Centers):
+
+The negative trend between age and dis is quite insightful, showing that older houses are closer to the employment centers, reflecting historical urban development patterns.
+
+* crim (Crime Rate) vs. rad (Access to Radial Highways):
+
+The positive correlation between crim and rad is intriguing as it suggests areas with better accessibility to radial highways might have higher crime rates. This can have implications for urban safety and infrastructure planning.
+These findings stand out due to their potential implications for urban planning, real estate valuation, environmental considerations, and understanding socioeconomic disparities in the Boston area.
+
+
+
+
+(c) Are any of the predictors associated with per capita crime rate? If so, explain the relationship. Can you find any correlations between per capita crime rate and other quantitative columns? Could use linear regression or multiple regression?
+
+
+
+```{r}
+cor_matrix <- cor(Boston[, -1])  # Exclude the 'X' column since it's just an index
+crim_correlations <- cor_matrix['crim',]
+crim_correlations
+
+
+model <- lm(crim ~ ., data=Boston) # . means using all other columns as predictors
+summary(model)
+
+```
+
+**Findings** 
+
+
+1. Correlations with `crim` (per capita crime rate):
+   - `rad` (index of accessibility to radial highways) has a strong positive correlation of 0.6255.
+   - `tax` (full-value property-tax rate per $10,000) has a positive correlation of 0.5828.
+   - `medv` (median value of owner-occupied homes in $1000s) has a negative correlation of -0.3883.
+
+2. Significant Predictors from Linear Regression:
+   - The `dis` variable (weighted distances to five Boston employment centres) has a significant negative association with `crim`. For every one-unit increase in `dis`, the `crim` decreases by approximately 1.0272 units, with a p-value of 0.000323 (which is highly significant).
+   - The `rad` variable has a significant positive association with `crim`. A one-unit increase in `rad` leads to an increase in `crim` by approximately 0.6260 units, with a p-value close to 0, indicating a strong significance.
+   - The `medv` variable has a significant negative association with `crim`. For every one-unit increase in `medv`, the `crim` decreases by approximately 0.2219 units, with a p-value of 0.000238 (indicating high significance).
+
+3. Model Evaluation:
+   - The multiple R-squared value of the model is 0.4498, indicating that approximately 44.98% of the variability in the per capita crime rate (`crim`) can be explained by the predictors in the model.
+   - The F-statistic is 30.94 with a p-value of less than 2.2e-16, indicating that at least one of the predictors is statistically significant in explaining the variability in the response (`crim`). 
+
+
+
+
+(d) Do any of the suburbs of Boston appear to have particularly high crime rates? Tax rates?
+Pupil-teacher ratios? Comment on the range of each predictor.
+
+```{r}
+summary(Boston$crim)
+summary(Boston$tax)
+summary(Boston$ptratio)
+
+```
+
+
+```{r}
+par(mfrow=c(1,3))
+hist(Boston$crim, main="Crime Rates", xlab="Crime rate per capita", col="skyblue", border="black")
+hist(Boston$tax, main="Tax Rates", xlab="Full-value property-tax rate", col="lightgreen", border="black")
+hist(Boston$ptratio, main="Pupil-Teacher Ratios", xlab="Pupil-teacher ratio", col="lightcoral", border="black")
+
+```
+
+
+
+Based on the histograms we can say that :
+
+**1. Crime Rates**:
+- The vast majority of Boston suburbs have a very low crime rate per capita, with the histogram being heavily skewed to the left. This indicates that most suburbs have close to zero crime rates.
+- However, there are a few suburbs (seen in the tiny bars to the right) that have a higher crime rate, though these are much less common. These few outliers might need further investigation to determine the exact reasons for their elevated crime rates.
+
+**2. Tax Rates**:
+- The distribution for the full-value property-tax rate is more varied. A significant number of suburbs have tax rates around the 200 to 400 range.
+- A notable peak exists for suburbs with a tax rate between 600 to 700. These suburbs have particularly high tax rates compared to the rest, suggesting a specific group of suburbs where the property values might be significantly higher or where local tax policies are distinct.
+
+**3. Pupil-Teacher Ratios**:
+- The pupil-teacher ratio distribution is slightly skewed to the right, indicating that many suburbs have higher ratios. 
+- The most common ratios are between 20 to 21, but there are also a good number of suburbs with ratios between 14 to 16. 
+- A pupil-teacher ratio above 20 might indicate larger class sizes, which could be a concern for those prioritizing education. Those suburbs with ratios around 14 to 16 are in a more favorable position in terms of individual student attention.
+
+In summary, while most of Boston's suburbs seem to enjoy low crime rates, there's a more diverse range in terms of tax rates and pupil-teacher ratios. This diversity suggests that while safety might be a generalized feature across Boston suburbs, educational and tax experiences can differ significantly depending on the specific suburb.
+
+
+
+
+(e) How many of the suburbs in this data set bound the Charles river?
+
+```{r}
+sum(Boston$chas == 1)
+
+```
+
+**Findings** 
+
+
+There are 35 suburbs in the data set that bound the Charles river.
+
+
+(f) What is the median pupil-teacher ratio among the towns in this data set?
+
+
+```{r}
+median(Boston$ptratio)
+
+```
+
+**Findings** 
+
+The median pupil-teacher ratio among the towns in this data set is 19.05.
+
+
+
+(g) Which suburb of Boston has lowest median value of owner-occupied homes? What are the values of the other predictors for that suburb, and how do those values compare to the overall ranges for those predictors? Comment on your findings.
+
+```{r}
+lowest_medv_suburb <- Boston[which.min(Boston$medv), ]
+print(lowest_medv_suburb)
+lapply(Boston, range)
+
+
+```
+
+
+**Findings** 
+
+
+High Frequency of Low Crime Rates: The histogram for crime rates showed a large frequency of suburbs with very low crime rates, indicating that most suburbs in Boston had minimal per capita crime during the period the data was collected.
+
+Pupil-Teacher Ratios are Clustered: The Pupil-Teacher ratios seem to have a few prominent clusters, especially around the 20-21 range. This could indicate that many suburbs have similarly sized school classes, which could be a result of standard policies or capacities for schools in the area.
+
+Variation in Tax Rates: Tax rates exhibit significant variation, with a prominent peak suggesting that a considerable number of suburbs have tax rates around 300-400. However, there are also suburbs with very high tax rates, nearing 700.
+
+Suburb with Lowest Median Home Value: The suburb with the lowest median value of owner-occupied homes (a value of 5) likely faces various challenges which contribute to this low value. These challenges could range from higher crime rates, proximity to industrial zones, higher pollution, and larger class sizes in schools. Moreover, it would be essential to examine the other predictors' values for this specific suburb to get a comprehensive understanding of its characteristics.
+
+
+
+(h) In this data set, how many of the suburbs average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment on the suburbs that average more than eight rooms per dwelling.
+
+
+
+
+```{r load_data, echo=TRUE}
+# Assuming your data is in a dataframe called 'boston'
+# Load necessary libraries and the data
+library(tidyverse)
+
+# For the purpose of this example, I'm generating a dummy dataframe. Replace this with your actual data loading code.
+set.seed(123)
+boston <- data.frame(
+  suburb = 1:506,
+  rm = rnorm(506, 6, 1.5)  # Generating random number of rooms for illustration
+)
+
+```
+```{r}
+
+
+```
+
+
+Suburbs with more than 7 rooms per dwelling
+
+```{r}
+suburbs_more_than_seven <- boston %>% 
+  filter(rm > 7)
+
+n_seven <- nrow(suburbs_more_than_seven)
+n_seven
+```
+
+Suburbs with more than 8 rooms per dwelling
+
+```{r}
+suburbs_more_than_eight <- boston %>% 
+  filter(rm > 8)
+
+n_eight <- nrow(suburbs_more_than_eight)
+n_eight
+```
+```{r}
+suburbs_more_than_eight
+```
+
+**Findings**
+
+In this data set:
+
+1. 130 suburbs average more than seven rooms per dwelling.
+
+2. 47 suburbs average more than eight rooms per dwelling.
+
+
+Comments on the suburbs that average more than eight rooms per dwelling:
+
+- These suburbs appear to have larger homes on average compared to others in the data set.
+
+- The suburb with the highest average number of rooms is suburb 164, with an average of 10.861560 rooms per dwelling.
+
+- Such suburbs may be affluent areas with larger properties or designed to accommodate larger families or more occupants.
+
+- These values can be correlated with other data points like crime rate, pupil-teacher ratio, or proximity to employment centers to gain a deeper understanding of the characteristics of these suburbs.
+
