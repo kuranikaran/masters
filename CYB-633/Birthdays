@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+//birthdays.c
+// Forward declaration
+struct Person;
+// Function pointer type
+typedef void (*PersonPrintFunction)(struct Person*);
+/**
+*   This struct has a name, birthday, and a function pointer
+*/struct Person {char name[50];time_t birthday;
+PersonPrintFunction print;
+};
+/**
+*
+*   @param person the person's name and birthday to print
+*/
+void printPerson(struct Person* person) { struct tm* tm_info;
+    /**********Your code is *******************/
+    tm_info = localtime(&person->birthday); // Convert time_t to tm struct for local timezone
+    char birthdayStr[100];
+    strftime(birthdayStr, sizeof(birthdayStr), "%B %d, %Y", tm_info); // Format the time as "Month Day, Year"
+    printf("Name: %s\nBirthday: %s\n", person->name, birthdayStr); // Print name and formatted birthday
+    /**********Between these comments******/
+}
+int main() {
+    // Create an instance of the struct and initialize it
+    struct Person person1;
+    // Assign values to the struct members
+    strcpy(person1.name, "Foo Baz");
+    // Set the birthday as a Unix timestamp (e.g., January 1, 1990)
+    struct tm birthday_tm = {0};
+    birthday_tm.tm_year = 90; // Years since 1900
+    birthday_tm.tm_mon = 0;  // Month (0-11, where 0 is January)
+    birthday_tm.tm_mday = 1; // Day of the month
+    person1.birthday = mktime(&birthday_tm);
+    // Assign the printPerson function to the function pointer
+    person1.print = printPerson;
+    // Call the print function using the function pointer
+    person1.print(&person1);
+    return 0;
+}
