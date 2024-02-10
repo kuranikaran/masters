@@ -1,0 +1,22 @@
+
+#include <stdio.h>
+// sum.c
+int sum(int a, int b){
+/**********Your code is *******************/
+// your sum logic goes here
+return a + b;
+/**********Between these comments******/
+}
+int main() {
+int array1[] = {1, 2, 3, 4, 5};
+int array2[] = {6, 7, 8, 9, 10};
+for (int i = 0; i < 5; i++) {
+char output[50];
+int first = array1[i];
+int second = array2[i];
+int result = sum(first,second);
+sprintf(output, "Sum of %d and %d is %d", first,second,
+result);
+puts(output);
+}
+}
