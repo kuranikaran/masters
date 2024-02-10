@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdbool.h>
+// pointer.c
+/**
+*
+*	@param nums a pointer to a number array
+*	@param length the length of the number array
+*	@param evenPrintMode if true print only even numbers, otherwise print all numbers
+*/ void pointer_print(int* nums, int length, bool evenPrintMode){
+/**********Your code is *******************/
+// print logic goes here
+    for (int i = 0; i < length; i++) {
+        if (evenPrintMode) {
+            // Check if the number is even
+            if (*(nums + i) % 2 == 0) {
+                printf("%d ", *(nums + i)); // Print if even
+            }
+        } else {
+          printf("%d ", *(nums + i));
+        }
+    }
+    printf("\n"); 
+/**********Between these comments******/
+}
+int main() { int array1[] = {1, 2, 3, 4, 5};
+pointer_print(&array1[0], 5, true); pointer_print(&array1[0], 3, false);
+}
