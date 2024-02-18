@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technology Trends Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            position: relative; /* reference for the iframe position*/
+            max-width: 600px;
+            margin: 20px;
+            padding: 40px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 2em;
+        }
+
+        button {
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        
+        #iframeOverlay {
+            position: absolute;
+            width: 200px; /* We can adjust to the size of your button if necessary */
+            height: 50px; /*We can adjust to the size of your button if necessary */
+            z-index: 10;
+            border: none; /* Remove the iframe border */
+            /* We can adjust the top and left values as needed to align with the button */
+            top: calc(100% - 70px); /* We can adjust this value to move the overlay down */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: transparent; /* Making the iframe's background transparent */
+
+/* Clickjacking Demo : Karan Kurani */
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Discover the Latest in Technology</h1>
+        <p>Click "Start" to take the quiz and see how much you know!</p>
+        <button id="startButton">Start Quiz</button>
+        <!-- The iframe is positioned directly over the button -->
+        <iframe id="iframeOverlay" src="overlay.html"></iframe>
+    </div>
+
+</body>
+</html>
+
